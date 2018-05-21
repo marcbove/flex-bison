@@ -8,6 +8,8 @@
 %{
 	#include <stdbool.h> /* lib for booleans in C/C++ */
     #include "AF.tab.h"
+    #define YY_DECL int yylex()
+    
     bool is_state = false, is_inicial = false, is_final = false;
     int num_states = 0;
 %}
@@ -75,17 +77,3 @@ finales			{
 <<EOF>>         { yyterminate(); }
 
 %%
-int main(int argc, char*argv[])
-{ 
-    if (argc > 1) /* if there is at least 1 argument apart from program name */
-    {
-        if (!(yyin = fopen(argv[1], "r"))) /* if the file cannot be opened*/
-        {
-            perror(argv[1]);
-            return 1; /* Return error code */ 
-        }
-    }
-    yylex();
-    printf("Number of States = %d\n", num_states); /* Print the number of states */
-    return 0;
-}

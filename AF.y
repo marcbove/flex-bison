@@ -1,12 +1,12 @@
 %{
 	#include <stdio.h> 
 	#include <stdlib.h> 
-	#include <string.h> 
 
-
-	extern int yylex(void); 
+	extern int yylex();
+	extern int yyparse();
+	extern FILE* yyin;
+	void yyerror(const char* s); 
 	extern char *yytext;
-	extern FILE *yyin; 
 %}
 
 %token ALFABETO ESTADOS TRANSICIONES INICIAL FINALES
@@ -37,19 +37,28 @@ lfinales : NUM lfinales {}
 		 | NUM ;
 
 %%
+void yyerror(const char* s) 
+{
+	fprintf(stderr, "Error: %s\n", s);
+	exit(1);
+}
 
 int main(int argc, char *argv)
 {
 	if (argc > 1) /* if there is at least 1 argument apart from program name */
     {
-        if (!(yyin = fopen(argv[1], "r"))) /* if the file cannot be opened*/
+    	char * fileName = argv[1];
+        if (!(yyin = fopen(fileName, "r"))) /* if the file cannot be opened*/
         {
-            perror(argv[1]);
+            printf("Hi ha hagut un error en el fitxer.");
             return 1; /* Return error code */ 
         }
     }
-	yyparse();
-	printf("\n\nSEPA ha acabat... la lectura ha sigut un exit\n");
+    do { 
+		yyparse();
+	} while(!feof(yyin));
+	
+	printf("\nEl programa ha finalitzat correctament!\n");
 
 	return 0;
 }
