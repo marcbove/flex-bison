@@ -1,0 +1,9 @@
+% Autómata Finito
+Alfabeto  { aCno , av67as , aacmkqw }
+Estados { 9hj }
+Transiciones { (8 , aAFAFa544AxaZ ; 9) , (8 , 1 ; 8) }
+Inicial { 2 }
+
+
+
+Finales { 1548a, asf, 4542 }
