@@ -8,10 +8,9 @@
 %{
 	#include <stdbool.h> /* lib for booleans in C/C++ */
     #include "AF.tab.h"
-    #define YY_DECL int yylex()
     
     bool is_state = false, is_inicial = false, is_final = false;
-    int num_states = 0;
+    int num_states = 0, num_lines = 1;
 %}
 NUM				0|[1-9][0-9]+
 SEP 			[ \t\r]*
@@ -27,7 +26,7 @@ TRANSICION		{SEP}{PAR_A}{SEP}{NUM}{SEP}{COMA}{SEP}{SIMBOLO}{SEP}{PUNTOCOMA}{SEP}
 COMENTARIO		"%".*{ENTER}
 
 %%
-alfabeto        {   return ALFABETO;}
+alfabeto        { return(ALFABETO); }
 
 estados			{ 
 					is_state = true;
@@ -74,6 +73,8 @@ finales			{
 {COMENTARIO}    { return(COMENT); }
 
 {SEP}           { }
+
+{ENTER} 		{ num_lines++; }
 
 <<EOF>>         { yyterminate(); }
 
