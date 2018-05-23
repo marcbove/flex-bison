@@ -72,6 +72,7 @@ finales			{
 {TRANSICION}    { return(TRANS); }
 
 {COMENTARIO}    { return(COMENT); }
+
 {SEP}           { }
 
 <<EOF>>         { yyterminate(); }
