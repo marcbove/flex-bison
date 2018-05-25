@@ -1,3 +1,9 @@
+/*
+	Authors :  Bové Gómara, Marc
+			   López Mellina, Alex
+			   Mege Barriola, Gwen
+*/
+%define parse.error verbose
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
@@ -26,32 +32,33 @@
 
 %token ALFABETO ESTADOS TRANSICIONES INICIAL FINALES
 %token TRANS <car>NUM <car>SIMB COMENT ERROR 
+%token ABRIR CERRAR COMA PAR_A PUNTOCOMA PAR_C
 
 %%
 af : alfabeto estados transiciones inicial finales ;
 
-alfabeto: ALFABETO '{' lsimbolos '}' ;
+alfabeto: ALFABETO ABRIR lsimbolos CERRAR ;
 
-lsimbolos : SIMB ',' lsimbolos 	{ simbRepeated($1); }
-          | NUM ',' lsimbolos 	{ simbRepeated($1); }
+lsimbolos : SIMB COMA lsimbolos 	{ simbRepeated($1); }
+          | SIMB COMA lsimbolos 	{ simbRepeated($1); }
           | SIMB				{ simbRepeated($1); }
-          | NUM   				{ simbRepeated($1); };
+          | SIMB   				{ simbRepeated($1); };
 
-estados : ESTADOS '{' NUM '}';
+estados : ESTADOS ABRIR SIMB CERRAR;
 
-transiciones: TRANSICIONES '{' ltransicion '}';
+transiciones: TRANSICIONES ABRIR ltransicion CERRAR;
 
-ltransicion : trans ',' ltransicion
+ltransicion : trans COMA ltransicion
 			| trans;
 
-trans: '(' NUM ',' SIMB ';' NUM ')'  { comprTransicion($2, $4, $6);};
+trans: PAR_A SIMB COMA SIMB PUNTOCOMA SIMB PAR_C  { comprTransicion($2, $4, $6);};
 
-inicial : INICIAL '{' NUM '}';
+inicial : INICIAL ABRIR SIMB CERRAR;
 
-finales : FINALES '{' lfinales '}';
+finales : FINALES ABRIR lfinales CERRAR;
 
-lfinales : NUM ',' lfinales
-		 | NUM ;
+lfinales : SIMB COMA lfinales
+		 | SIMB ;
 
 %%
 void yyerror(char* e) 

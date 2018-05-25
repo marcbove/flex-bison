@@ -30,6 +30,7 @@ alfabeto        { return(ALFABETO); }
 
 estados			{ 
 					is_state = true;
+					
 					return(ESTADOS);
 				}
 transiciones	{   return(TRANSICIONES);}
@@ -52,27 +53,49 @@ finales			{
 						is_state = false;
 						num_states = atoi(yytext); /* store the value indicating the number of states */
 					}
-                    return(NUM);
+					yylval.car=strdup(yytext);
+                    return(SIMB);
 				}
 
 {SIMBOLO}       { 
                     if(is_inicial||is_state||is_final)
                     {
-                        return(ERROR);
+                        //return(ERROR);
                         if(is_inicial)
+                        {
+                        	printf("[ERROR]: Finales no puede tener simbolos \n");
                             is_inicial = false;
+                        }
                         if(is_state)
+                        {
+                        	printf("[ERROR]: Finales no puede tener simbolos\n");
                             is_state = false;
+                        }
+                        if(is_final)
+                        	printf("[ERROR]: Finales no puede tener simbolos\n");
                     }
                     else
+                    	yylval.car=strdup(yytext);
                         return(SIMB);                
                 }
 
 {TRANSICION}    { return(TRANS); }
 
-{COMENTARIO}    { return(COMENT); }
+{COMENTARIO}    { printf("%s", yytext);/*return(COMENT);*/ }
 
 {SEP}           { }
+
+{ABRIR}			{ return(ABRIR);}	
+
+{CERRAR}		{ return(CERRAR);}
+
+{COMA}			{ return(COMA);}		
+
+{PAR_C}			{ return(PAR_C);}		
+
+{PAR_A}			{ return(PAR_A);}		
+
+{PUNTOCOMA}		{ return(PUNTOCOMA);}		
 
 {ENTER} 		{ num_lines++; }
 
