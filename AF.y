@@ -73,18 +73,21 @@ void yyerror(char *s)
 
 void simbRepeated(char *simb)
 {	
-	int i = 0, trobat = 0;
-	while (i < num_simbols && trobat == 0) 
+	int i = 0; 
+	bool found = false;
+	
+	while (i < num_simbols && !found) 
 	{
-		if (strcmp(alf[i], simb) == 0)
-			trobat = 1;
-		else 
-			i++; 
+		if (!strcmp(alf[i], simb))
+		{
+			found = true;
+			printf("[AVISO]: EL símbolo %s ya existe\n", simb); /* (6) */
+		}
+		i++; 
 	}
-	if (trobat == 0) 
-		alf[num_simbols++] = simb;
-	else 
-		printf("[AVISO]: EL símbolo %s ya existe\n", simb); /* (6) */
+
+	if (!found) 
+		alf[num_simbols++] = simb;		
 }
 
 bool esDeterminista()
@@ -144,7 +147,7 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 
 void transicion() /* (1) */
 {
-	for (int i = 0; i<num_trans; i++)
+	for (int i = 0; i < num_trans; i++)
 	{
 		if (esDeterminista()) 
 		{
@@ -187,8 +190,6 @@ int main(int argc, char **argv)
     	yyin = stdin;
 
     yyparse();
-    //if(!esDeterminista())
-    //	printf("[AVISO]: Se ha detectado que el AF es no determinista\n"); /* (7) */
     transicion();
 	printf("\nEl programa ha finalizado correctamente!\n");
 	fclose(yyin);
