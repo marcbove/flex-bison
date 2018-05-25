@@ -23,7 +23,6 @@ COMA			","
 PUNTOCOMA		";"
 PAR_A			"("
 PAR_C			")"
-TRANSICION		{SEP}{PAR_A}{SEP}{NUM}{SEP}{COMA}{SEP}{SIMBOLO}{SEP}{PUNTOCOMA}{SEP}{NUM}{SEP}{PAR_C}{SEP}
 COMENTARIO		"%".*{ENTER}
 
 %%
@@ -71,8 +70,6 @@ finales			{
                     	yylval.car = strdup(yytext);
                         return(SIMB);                
                 }
-
-{TRANSICION}    { /*return(TRANS);*/ }
 
 {COMENTARIO}    { /*printf("%s", yytext); return(COMENT);*/ }
 

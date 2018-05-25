@@ -31,7 +31,7 @@
 }
 
 %token ALFABETO ESTADOS TRANSICIONES INICIAL FINALES
-%token TRANS <car>SIMB COMENT ERROR 
+%token <car>SIMB ERROR 
 %token ABRIR CERRAR COMA PAR_A PUNTOCOMA PAR_C
 
 %%
@@ -102,29 +102,25 @@ bool esDeterminista()
 void comprTransicion(char* estatI, char* simb, char* estatF)
 {
 	int i=0; 
-	int trobat=false;
+	bool trobat=false;
 	int estatInici = atoi(estatI);
 	int estatFinal = atoi(estatF);
-
-	if((estatInici > num_states) || (estatFinal > num_states)) 
-		printf("[ERROR]: El estado %d de la transición (%d , %s ; %d) es desconocido\n", 
-			estatInici, estatInici, simb, estatFinal); /* (5) */
 	
 	while (i<num_simbols && !trobat) 
 	{
-		if (strcmp(alf[i], simb) ==0 ) 
+		if (strcmp(alf[i], simb) == 0) 
 			trobat = true;
 		else 
 			i++;
 	}
-	if (!trobat) 
+	if (!trobat || (estatInici > num_states) || (estatFinal > num_states)) 
 		printf ("[ERROR]: El simbolo %s de la transición (%d , %s ; %d) es desconocido\n", 
 			simb, estatInici, simb, estatFinal); /* (5) */
 
 	if (trobat && estatInici<=num_states && estatFinal<=num_states) 
 	{
 		i=0; 
-		int trobat2=false;
+		bool trobat2=false;
 		while (i<num_trans && !trobat2) 
 		{
 			if ((strcmp(transi[i][0], estatI) == 0) && (strcmp(transi[i][1], simb) == 0) && (strcmp(transi[i][2], estatF) == 0)) 
@@ -139,8 +135,6 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 			transi[num_trans][2]=estatF; 
 			num_trans++; 
 		}
-		//else 
-			//printf("[AVISO]: La transición (%d , %s ; %d) ya existe\n", estatInici, simb, estatFinal);
 	}
 }
 
