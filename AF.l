@@ -7,6 +7,7 @@
 %option noyywrap
 %{
 	#include <stdbool.h> /* lib for booleans in C/C++ */
+    #include <ctype.h>
     #include "AF.tab.h"
     
     bool is_state = false, is_inicial = false, is_final = false;
@@ -44,50 +45,47 @@ finales			{
                     return(FINALES);
                 }
 {NUM}    		{ 
-                    if(is_inicial)
-                    {
-                        is_inicial = false;
-                    }
 					if(is_state)
 					{	
 						is_state = false;
 						num_states = atoi(yytext); /* store the value indicating the number of states */
 					}
-					yylval.car=strdup(yytext);
+					yylval.car = strdup(yytext);
                     return(SIMB);
 				}
 
 {SIMBOLO}       { 
                     if(is_inicial||is_state||is_final)
                     {
-                        //return(ERROR);
-                        if(is_inicial)
-                        {
-                        	printf("[ERROR]: Finales no puede tener simbolos \n");
-                            is_inicial = false;
-                        }
-                        if(is_state)
-                        {
-                        	printf("[ERROR]: Finales no puede tener simbolos\n");
-                            is_state = false;
-                        }
-                        if(is_final)
-                        	printf("[ERROR]: Finales no puede tener simbolos\n");
+                    	if(!atoi(yytext))
+	                    {
+	                        if(is_inicial)
+	                           	printf("[ERROR]: Inicial no puede tener simbolos\n");
+	                        if(is_state)
+	                           	printf("[ERROR]: Estados no puede tener simbolos\n");
+	                        if(is_final)
+	                        	printf("[ERROR]: Finales no puede tener simbolos\n");
+                    	}
                     }
                     else
-                    	yylval.car=strdup(yytext);
+                    	yylval.car = strdup(yytext);
                         return(SIMB);                
                 }
 
-{TRANSICION}    { return(TRANS); }
+{TRANSICION}    { /*return(TRANS);*/ }
 
-{COMENTARIO}    { printf("%s", yytext);/*return(COMENT);*/ }
+{COMENTARIO}    { /*printf("%s", yytext); return(COMENT);*/ }
 
 {SEP}           { }
 
 {ABRIR}			{ return(ABRIR);}	
 
-{CERRAR}		{ return(CERRAR);}
+{CERRAR}		{ 	
+					is_final = false;
+					is_state = false; 
+					is_inicial = false;
+					return(CERRAR);
+				}
 
 {COMA}			{ return(COMA);}		
 

@@ -14,14 +14,14 @@
 	
 	extern int yylex(void);
 	extern char *yytext;
-	extern FILE *yyin;
-	extern int num_lines;
+	FILE *yyin;
+	extern int num_lines, num_states;
 	
 	void yyerror(char *s);
-	void simbRepeated(char* simb);
-	void comprTransicion(char* estatInici, char* simb, char* estatFinal);
+	void simbRepeated(char *simb);
+	void comprTransicion(char *estatInici, char *simb, char *estatFinal);
 
-	int num_simbols = 0, num_trans = 0, num_states;
+	int num_simbols = 0, num_trans = 0;
 	char *transi[MAX_VALUE][3], *alf[MAX_VALUE];
 %}
 
@@ -39,7 +39,7 @@ af : alfabeto estados transiciones inicial finales ;
 
 alfabeto: ALFABETO ABRIR lsimbolos CERRAR ;
 
-lsimbolos : 						{ printf("[ERROR] El alfabeto debe contener uno o más símbolos\n"); } /* (2) */
+lsimbolos : 						{ printf("[ERROR]: El alfabeto debe contener uno o más símbolos\n"); } /* (2) */
 		  | SIMB COMA lsimbolos 	{ simbRepeated($1); }
           | SIMB					{ simbRepeated($1); };
 
@@ -54,24 +54,24 @@ trans: PAR_A SIMB COMA SIMB PUNTOCOMA SIMB PAR_C  { comprTransicion($2, $4, $6);
 
 inicial : INICIAL ABRIR linicial CERRAR;
 
-linicial : 						{ printf("[ERROR] Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
-		 | SIMB COMA linicial 	{ printf("[ERROR] Los Autómatas Finitos solo deben tener un estado final\n", ); } /* (3) */
+linicial : 						{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
+		 | SIMB COMA linicial 	{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
          | SIMB;
 
 finales : FINALES ABRIR lfinales CERRAR;
 
-lfinales : 						{ printf("[ERROR] Los Autómatas Finitos deben tener algún estado final\n"); } /* (4) */
+lfinales : 						{ printf("[ERROR]: Los Autómatas Finitos deben tener algún estado final\n"); } /* (4) */
 		 | SIMB COMA lfinales
 		 | SIMB ;
 
 %%
-void yyerror(char* e) 
+void yyerror(char *s) 
 {
-	fprintf(stderr, "%d: Error: %s\n", num_lines, e);
+	fprintf(stderr, "%d: Error: %s\n", num_lines, s);
 	exit(1);
 }
 
-void simbRepeated(char* simb)
+void simbRepeated(char *simb)
 {	
 	int i = 0, trobat = 0;
 	while (i < num_simbols && trobat == 0) 
@@ -84,7 +84,7 @@ void simbRepeated(char* simb)
 	if (trobat == 0) 
 		alf[num_simbols++] = simb;
 	else 
-		printf("[AVISO]: EL símbolo %c ya existe\n", simb); /* (6) */
+		printf("[AVISO]: EL símbolo %s ya existe\n", simb); /* (6) */
 }
 
 bool esDeterminista()
@@ -105,7 +105,7 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 	int estatFinal = atoi(estatF);
 
 	if((estatInici > num_states) || (estatFinal > num_states)) 
-		printf("[ERROR] El estado %d de la transición (%d , %s ; %d) es desconocido\n", 
+		printf("[ERROR]: El estado %d de la transición (%d , %s ; %d) es desconocido\n", 
 			estatInici, estatInici, simb, estatFinal); /* (5) */
 	
 	while (i<num_simbols && !trobat) 
@@ -116,7 +116,7 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 			i++;
 	}
 	if (!trobat) 
-		printf ("[ERROR] El simbolo %s de la transición (%d , %s ; %d) es desconocido\n", 
+		printf ("[ERROR]: El simbolo %s de la transición (%d , %s ; %d) es desconocido\n", 
 			simb, estatInici, simb, estatFinal); /* (5) */
 
 	if (trobat && estatInici<=num_states && estatFinal<=num_states) 
@@ -138,7 +138,7 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 			num_trans++; 
 		}
 		//else 
-			//printf("[AVISO] La transición (%d , %s ; %d) ya existe\n", estatInici, simb, estatFinal);
+			//printf("[AVISO]: La transición (%d , %s ; %d) ya existe\n", estatInici, simb, estatFinal);
 	}
 }
 
@@ -146,7 +146,7 @@ void transicion() /* (1) */
 {
 	for (int i = 0; i<num_trans; i++)
 	{
-		if (esDeterminista) 
+		if (esDeterminista()) 
 		{
 			if(i == 0)
 				printf("\nint transicion(int estado, char simbolo) {\n\tint sig;");
@@ -159,8 +159,10 @@ void transicion() /* (1) */
 		else 
 		{
 			if(i == 0)
-				printf("\nint* transicion(int estado, char simbolo) {\n\tstatic int sig[num-estados+1], n=0;");
-			
+			{
+				printf("[AVISO]: Se ha detectado que el AF es no determinista\n"); /* (7) */
+				printf("\nint * transicion(int estado, char simbolo) {\n\tstatic int sig[num-estados+1], n=0;");
+			}
 			printf("\n\tif((estado==%d)&&(simbolo=='%s')) sig[n++] = %d;", atoi(transi[i][0]), transi[i][1], atoi(transi[i][2]));
 			
 			if(i == num_trans-1)
@@ -171,14 +173,13 @@ void transicion() /* (1) */
 
 int main(int argc, char **argv)
 {
-	//FILE* yyin;
 	if (argc > 1) /* if there is at least 1 argument apart from program name */
     {
     	yyin = fopen(argv[1], "rt");
         
     	if (yyin == NULL) /* if the file cannot be opened */ 
         {
-        	printf("[ERROR] Ha habido algún error en el fichero\n");
+        	printf("[ERROR]: Ha habido algún error en el fichero\n");
             return 1; /* Return error code */ 
         }
     }
@@ -186,9 +187,9 @@ int main(int argc, char **argv)
     	yyin = stdin;
 
     yyparse();
-    if(!esDeterminista())
-    	printf("[AVISO] Se ha detectado que el AF es no determinista\n"); /* (7) */
-    
+    //if(!esDeterminista())
+    //	printf("[AVISO]: Se ha detectado que el AF es no determinista\n"); /* (7) */
+    transicion();
 	printf("\nEl programa ha finalizado correctamente!\n");
 	fclose(yyin);
 	return 0; /* Return succeed code */
