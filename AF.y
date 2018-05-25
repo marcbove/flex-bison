@@ -31,7 +31,7 @@
 }
 
 %token ALFABETO ESTADOS TRANSICIONES INICIAL FINALES
-%token TRANS <car>NUM <car>SIMB COMENT ERROR 
+%token TRANS <car>SIMB COMENT ERROR 
 %token ABRIR CERRAR COMA PAR_A PUNTOCOMA PAR_C
 
 %%
@@ -39,10 +39,9 @@ af : alfabeto estados transiciones inicial finales ;
 
 alfabeto: ALFABETO ABRIR lsimbolos CERRAR ;
 
-lsimbolos : SIMB COMA lsimbolos 	{ simbRepeated($1); }
-          | SIMB COMA lsimbolos 	{ simbRepeated($1); }
-          | SIMB				{ simbRepeated($1); }
-          | SIMB   				{ simbRepeated($1); };
+lsimbolos : 						{ printf("[ERROR] El alfabeto debe contener uno o más símbolos\n"); } /* (2) */
+		  | SIMB COMA lsimbolos 	{ simbRepeated($1); }
+          | SIMB					{ simbRepeated($1); };
 
 estados : ESTADOS ABRIR SIMB CERRAR;
 
@@ -53,11 +52,16 @@ ltransicion : trans COMA ltransicion
 
 trans: PAR_A SIMB COMA SIMB PUNTOCOMA SIMB PAR_C  { comprTransicion($2, $4, $6);};
 
-inicial : INICIAL ABRIR SIMB CERRAR;
+inicial : INICIAL ABRIR linicial CERRAR;
+
+linicial : 						{ printf("[ERROR] Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
+		 | SIMB COMA linicial 	{ printf("[ERROR] Los Autómatas Finitos solo deben tener un estado final\n", ); } /* (3) */
+         | SIMB;
 
 finales : FINALES ABRIR lfinales CERRAR;
 
-lfinales : SIMB COMA lfinales
+lfinales : 						{ printf("[ERROR] Los Autómatas Finitos deben tener algún estado final\n"); } /* (4) */
+		 | SIMB COMA lfinales
 		 | SIMB ;
 
 %%
@@ -80,7 +84,7 @@ void simbRepeated(char* simb)
 	if (trobat == 0) 
 		alf[num_simbols++] = simb;
 	else 
-		printf("Warning: %s already exists.", simb);
+		printf("[AVISO]: EL símbolo %c ya existe\n", simb); /* (6) */
 }
 
 bool esDeterminista()
@@ -100,10 +104,9 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 	int estatInici = atoi(estatI);
 	int estatFinal = atoi(estatF);
 
-	if(estatInici > num_states) 
-		printf("[ERROR] El estado %d de la transición (%d , %s ; %d) es desconocido\n", estatInici, estatInici, simb, estatFinal);
-	if(estatFinal > num_states) 
-		printf("[ERROR] El estado %d de la transición (%d , %s ; %d) es desconocido\n", estatFinal, estatInici, simb, estatFinal);
+	if((estatInici > num_states) || (estatFinal > num_states)) 
+		printf("[ERROR] El estado %d de la transición (%d , %s ; %d) es desconocido\n", 
+			estatInici, estatInici, simb, estatFinal); /* (5) */
 	
 	while (i<num_simbols && !trobat) 
 	{
@@ -113,7 +116,8 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 			i++;
 	}
 	if (!trobat) 
-		printf ("[ERROR] El simbolo %s de la transición (%d , %s ; %d) es desconocido\n", simb, estatInici, simb, estatFinal);
+		printf ("[ERROR] El simbolo %s de la transición (%d , %s ; %d) es desconocido\n", 
+			simb, estatInici, simb, estatFinal); /* (5) */
 
 	if (trobat && estatInici<=num_states && estatFinal<=num_states) 
 	{
@@ -133,12 +137,12 @@ void comprTransicion(char* estatI, char* simb, char* estatF)
 			transi[num_trans][2]=estatF; 
 			num_trans++; 
 		}
-		else 
-			printf("[AVISO] La transición (%d , %s ; %d) ya existe\n", estatInici, simb, estatFinal);
+		//else 
+			//printf("[AVISO] La transición (%d , %s ; %d) ya existe\n", estatInici, simb, estatFinal);
 	}
 }
 
-void transicion() 
+void transicion() /* (1) */
 {
 	for (int i = 0; i<num_trans; i++)
 	{
@@ -174,14 +178,18 @@ int main(int argc, char **argv)
         
     	if (yyin == NULL) /* if the file cannot be opened */ 
         {
-        	printf("Hi ha hagut un error en el fitxer.\n");
+        	printf("[ERROR] Ha habido algún error en el fichero\n");
             return 1; /* Return error code */ 
         }
     }
     else
     	yyin = stdin;
+
     yyparse();
-	printf("\nEl programa ha finalitzat correctament!\n");
+    if(!esDeterminista())
+    	printf("[AVISO] Se ha detectado que el AF es no determinista\n"); /* (7) */
+    
+	printf("\nEl programa ha finalizado correctamente!\n");
 	fclose(yyin);
 	return 0; /* Return succeed code */
 }

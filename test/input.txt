@@ -1,5 +1,5 @@
 % Automata Finito
-Alfabeto { 2 , 3 , aa , a , abc , aa , 6 , 7 }
+Alfabeto { 2 , 3 , c , a , abc , aa , 6 , 7 }
 Estados { 135 }
 Transiciones { (7 , c ; 2), (2 , aa ; 7), (7 , c ; 3), (2 , aa ; 6), (5 , abc ; 2) }
 Inicial { 5 }
