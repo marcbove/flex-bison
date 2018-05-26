@@ -167,6 +167,45 @@ void transicion() /* (1) */
 	} 
 }
 
+void provaTransicion() /* (1 y 8) */
+{
+	FILE *fileH = fopen("transicion.h", "a");
+	FILE *fileC = fopen("transicion.c", "a");
+
+	fprintf(fileC, "#include ""transicion.h""\n");
+	fprintf(fileH, "int transiciondet(int estado, char simbolo);\n");
+	fprintf(fileH, "int * transicion(int estado, char simbolo);\n");
+	fclose(fileH);
+
+	for (int i = 0; i < num_trans; i++)
+	{
+		if (esDeterminista()) 
+		{
+			if(i == 0)
+				fprintf(fileC, "\nint transiciondet(int estado, char simbolo) {\n\tint sig;");
+			
+			fprintf(fileC, "\n\tif((estado==%d)&&(simbolo=='%s')) sig = %d;", atoi(transi[i][0]), transi[i][1], atoi(transi[i][2]));
+			
+			if(i == num_trans-1)
+				fprintf(fileC, "\n\treturn(sig);\n}\n");
+		}
+		else 
+		{
+			if(i == 0)
+			{
+				printf("[AVISO]: Se ha detectado que el AF es no determinista\n"); /* (7) */
+				fprintf(fileC, "\nint * transicion(int estado, char simbolo) {\n\tstatic int sig[num-estados+1], n=0;");
+			}
+			fprintf(fileC, "\n\tif((estado==%d)&&(simbolo=='%s')) sig[n++] = %d;", atoi(transi[i][0]), transi[i][1], atoi(transi[i][2]));
+			
+			if(i == num_trans-1)
+				fprintf(fileC, "\n\tsig[n]=-1; /* centinella */\n\treturn(sig);\n}\n");
+		}
+	} 
+	fclose(fileC);
+	
+}
+
 int main(int argc, char **argv)
 {
 	if (argc > 1) /* if there is at least 1 argument apart from program name */
@@ -183,8 +222,9 @@ int main(int argc, char **argv)
     	yyin = stdin;
 
     yyparse();
-    transicion();
-	printf("\nEl programa ha finalizado correctamente!\n");
+    //transicion(); /* imprime la función creada por pantalla */
+    provaTransicion(); /* Redirige la salida a un fichero .c */
+	printf("\nEl programa ha finalizado correctamente! Consulta los ficheros transicion.c y transicion.h para ver la función resultante.\n");
 	fclose(yyin);
 	return 0; /* Return succeed code */
 }

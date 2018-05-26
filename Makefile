@@ -10,4 +10,4 @@ AF: lex.yy.c AF.tab.c AF.tab.h
 	gcc -o AF AF.tab.c lex.yy.c
 
 clean:
-	rm AF AF.tab.c lex.yy.c AF.tab.h
+	rm AF AF.tab.c lex.yy.c AF.tab.h transicion.c transicion.h
