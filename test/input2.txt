@@ -1,0 +1,6 @@
+% Automata Finito
+Alfabeto  b , aa , 7 } 
+Estados { 10 }
+Transiciones { (1 , aa ; 5) }
+Inicial { 2 }
+Finales { 1, 2, 3 }
