@@ -222,8 +222,8 @@ int main(int argc, char **argv)
     	yyin = stdin;
 
     yyparse();
-    //transicion(); /* imprime la función creada por pantalla */
-    provaTransicion(); /* Redirige la salida a un fichero .c */
+    transicion(); /* imprime la función creada por pantalla */
+    //provaTransicion(); /* Redirige la salida a un fichero .c */
 	printf("\nEl programa ha finalizado correctamente! Consulta los ficheros transicion.c y transicion.h para ver la función resultante.\n");
 	fclose(yyin);
 	return 0; /* Return succeed code */
