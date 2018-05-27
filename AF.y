@@ -182,7 +182,7 @@ void provaTransicion() /* (1 y 8) */
 		if (esDeterminista()) 
 		{
 			if(i == 0)
-				fprintf(fileC, "\nint transiciondet(int estado, char simbolo) {\n\tint sig;");
+				fprintf(fileC, "\nint transicion(int estado, char simbolo) {\n\tint sig;");
 			
 			fprintf(fileC, "\n\tif((estado==%d)&&(simbolo=='%s')) sig = %d;", atoi(transi[i][0]), transi[i][1], atoi(transi[i][2]));
 			
