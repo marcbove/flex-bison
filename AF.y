@@ -54,8 +54,8 @@ trans: PAR_A SIMB COMA SIMB PUNTOCOMA SIMB PAR_C  { comprTransicion($2, $4, $6);
 
 inicial : INICIAL ABRIR linicial CERRAR;
 
-linicial : 						{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
-		 | SIMB COMA linicial 	{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado final\n"); } /* (3) */
+linicial : 						{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado inicial\n"); } /* (3) */
+		 | SIMB COMA linicial 	{ printf("[ERROR]: Los Autómatas Finitos solo deben tener un estado inicial\n"); } /* (3) */
          | SIMB;
 
 finales : FINALES ABRIR lfinales CERRAR;
